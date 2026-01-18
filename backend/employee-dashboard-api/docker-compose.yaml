@@ -1,6 +1,6 @@
 services:
   mysql:
-    image: 'mysql:latest'
+    image: 'mysql:8.0'
     container_name: mysql-db
     restart: always
     environment:
@@ -9,16 +9,15 @@ services:
       - 'MYSQL_ROOT_PASSWORD=verysecret'
       - 'MYSQL_USER=myuser'
     ports:
-      - '3306'
+      - '3306:3306'
     networks:
       - net
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pverysecret"]
-      interval: 10s
+      interval: 2s
       timeout: 5s
-      retries: 5
-      start_period: 10s
-
+      retries: 15
+      start_period: 15s
 
   app:
     build: .
@@ -30,7 +29,7 @@ services:
     ports:
       - '8080:8080'
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/companydb
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/companydb
       - SPRING_DATASOURCE_USERNAME=myuser
       - SPRING_DATASOURCE_PASSWORD=secret
     networks:

@@ -10,5 +10,4 @@ public class EmployeeService {
     public EmployeeService(EmployeeRepository employeeRepository){
         this.employeeRepository = employeeRepository;
     }
-    
 }
