@@ -1,4 +1,4 @@
-package com.eminyber.employee_dashboard_api.titles.models;
+package com.eminyber.employee_dashboard_api.jobtitles.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,19 +8,19 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "title")
-public class Title {
+@Table(name = "job_titles")
+public class JobTitle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Long id;
 
-    @Column(name = "position", unique = true, nullable = false)
-    private String position;
+    @Column(name = "title", unique = true, nullable = false)
+    private String title;
 
-    public Title() {}
+    public JobTitle() {}
 
-    public Title(String position) {
-        this.position = position;
+    public JobTitle(String title) {
+        this.title = title;
     }
 
     public Long getId() {
@@ -31,11 +31,11 @@ public class Title {
         this.id = id;
     }
 
-    public String getPosition() {
-        return position;
+    public String getTitle() {
+        return title;
     }
 
-    public void setPosition(String position) {
-        this.position = position;
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

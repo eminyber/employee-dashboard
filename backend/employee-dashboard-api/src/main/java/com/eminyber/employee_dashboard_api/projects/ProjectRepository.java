@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.eminyber.employee_dashboard_api.projects.models.Project;
 
 @Repository
-public interface ProjectRepository extends JpaRepository<Project, Long>{} 
+public interface ProjectRepository extends JpaRepository<Project, Long>{
+    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
+} 

@@ -4,8 +4,8 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.eminyber.employee_dashboard_api.jobtitles.models.JobTitle;
 import com.eminyber.employee_dashboard_api.projects.models.Project;
-import com.eminyber.employee_dashboard_api.titles.models.Title;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +20,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "employee")
+@Table(name = "employees")
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
@@ -37,13 +37,13 @@ public class Employee {
 
     @ManyToOne(optional = false)
     @JoinColumn(
-        name = "title_id",
+        name = "job_title_id",
         nullable = false,
         foreignKey = @ForeignKey(name = "fk_employee_title")
     )
-    private Title title;
+    private JobTitle jobTitle;
 
-    @Column(name = "employed_date")
+    @Column(name = "employed_date", nullable = false)
     private LocalDate employedDate;
 
     @ManyToMany
@@ -58,11 +58,11 @@ public class Employee {
 
     public Employee() {}
 
-    public Employee(String firstName, String lastName, String email, Title title, LocalDate employedDate) {
+    public Employee(String firstName, String lastName, String email, JobTitle jobTitle, LocalDate employedDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.title = title;
+        this.jobTitle = jobTitle;
         this.employedDate = employedDate;
     }
 
@@ -94,12 +94,12 @@ public class Employee {
         this.email = email;
     }
 
-    public Title getTitle() {
-        return title;
+    public JobTitle getJobTitle() {
+        return jobTitle;
     }
 
-    public void setTitle(Title title) {
-        this.title = title;
+    public void setJobTitle(JobTitle title) {
+        this.jobTitle = title;
     }
 
     public LocalDate getEmployedDate() {
