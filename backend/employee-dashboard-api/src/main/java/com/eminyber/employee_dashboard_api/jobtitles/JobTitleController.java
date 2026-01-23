@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/api/v1/jobtitles")
+@RequestMapping("/api/v1/job-titles")
 public class JobTitleController {
 
     private final JobTitleService titleService;
@@ -49,7 +49,7 @@ public class JobTitleController {
         UriComponentsBuilder uriBuilder
     ){
         JobTitleResponse createdJobTitle = titleService.createJobTitle(request);
-        var uri = uriBuilder.path("/api/v1/jobtitles/{id}").buildAndExpand(createdJobTitle.id()).toUri();
+        var uri = uriBuilder.path("/api/v1/job-titles/{id}").buildAndExpand(createdJobTitle.id()).toUri();
 
         return ResponseEntity.created(uri).body(createdJobTitle);
     }

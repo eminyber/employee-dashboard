@@ -1,6 +1,7 @@
 package com.eminyber.employee_dashboard_api.employees.specifications;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -27,25 +28,35 @@ public class EmployeeSpecification {
         };
     }
 
-    public static Specification<Employee> emailContains(String email) {
+    public static Specification<Employee> fullNameSearch(List<String> searchWords){
         return (root, query, cb) -> {
-            if (email == null || email.isBlank()) {
+        if (searchWords == null || searchWords.isEmpty()) {
+            return cb.conjunction();
+        }
+
+        if (searchWords.size() == 1){
+            return firstNameContains(searchWords.get(0)).or(lastNameContains(searchWords.get(0))).toPredicate(root, query, cb);
+        }
+
+        // Simplified the search: Exact match for Firstname + Lastname in that order is required for the search to work right now. 
+        if (searchWords.size() > 1){
+            System.out.println(searchWords);
+            return firstNameContains(searchWords.get(0)).and(lastNameContains(searchWords.get(1))).toPredicate(root, query, cb);
+        }
+
+        return cb.conjunction();
+    };
+    }
+
+    public static Specification<Employee> hasJobTitleId(List<Integer> jobTitleIds) {
+        return (root, query, cb) -> {
+            if (jobTitleIds == null || jobTitleIds.isEmpty()) {
                 return cb.conjunction();
             }
 
-            return cb.like(root.get("email"), "%" + email + "%");
-        };
-    }
-
-    public static Specification<Employee> hasJobTitleId(int jobTitleId) {
-         return (root, query, cb) -> {
-            if (jobTitleId <= 0){
-                return cb.conjunction();
-            }
-
-            return cb.equal(root.get("jobTitle").get("id"), jobTitleId);
-         };
-    }
+        return root.get("jobTitle").get("id").in(jobTitleIds);
+    };
+}
 
     public static Specification<Employee> hasProjectId(int projectId) {
         return (root, query, cb) -> {

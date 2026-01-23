@@ -1,15 +1,14 @@
 package com.eminyber.employee_dashboard_api.employees;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.eminyber.employee_dashboard_api.common.exceptions.types.ResourceAlreadyExistsException;
@@ -19,6 +18,7 @@ import com.eminyber.employee_dashboard_api.employees.mappers.EmployeeMapper;
 import com.eminyber.employee_dashboard_api.employees.models.CreateEmployeeRequest;
 import com.eminyber.employee_dashboard_api.employees.models.Employee;
 import com.eminyber.employee_dashboard_api.employees.models.EmployeeResponse;
+import com.eminyber.employee_dashboard_api.employees.models.HiresPerMonthResponse;
 import com.eminyber.employee_dashboard_api.employees.models.UpdateEmployeeProjectsRequest;
 import com.eminyber.employee_dashboard_api.employees.models.UpdateEmployeeRequest;
 import com.eminyber.employee_dashboard_api.employees.specifications.EmployeeSpecification;
@@ -45,29 +45,18 @@ public class EmployeeService {
     }
 
     public PaginatedResponse<EmployeeResponse> getAllEmployees(
-        int page, 
-        int size, 
-        String sortBy,
-        String sortDirection,
-        String search,
-        int jobTitleId,
-        int projectId,
+        Pageable page,
+        List<String> searchWords,
+        List<Integer> jobTitleIds,
         LocalDate startDate,
         LocalDate endDate
     ){
-        Sort sort = "desc".equalsIgnoreCase(sortDirection) ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
-
-        //Would probably create a builder/factory class here to make it more maintanable but I might not have time
-        Specification<Employee> spec = Specification.where(EmployeeSpecification.firstNameContains(search).or(
-                                                           EmployeeSpecification.lastNameContains(search)).or(
-                                                           EmployeeSpecification.emailContains(search)).and(
-                                                           EmployeeSpecification.hasJobTitleId(jobTitleId)).and(
-                                                           EmployeeSpecification.hasProjectId(projectId)).and(
+        //Should probably create some form of builder class here to make it cleaner. However, ommited due to time
+        Specification<Employee> spec = Specification.where(EmployeeSpecification.fullNameSearch(searchWords).and(
+                                                           EmployeeSpecification.hasJobTitleId(jobTitleIds)).and(
                                                            EmployeeSpecification.hiredBetween(startDate, endDate)));
-                       
-        Page<Employee> employeePage = employeeRepository.findAll(spec, pageable);
+
+        Page<Employee> employeePage = employeeRepository.findAll(spec, page);
         
         return employeeMapper.toPaginatedResponse(employeePage);
     }
@@ -87,7 +76,7 @@ public class EmployeeService {
         JobTitle jobTitle = titleRepository.findById(request.jobTitleId())
             .orElseThrow(() -> new ResourceNotFoundException("JobTitle", "id", request.jobTitleId()));
         
-        Set<Project> projects = getProjectsOrThrow(request.projectIds());
+        Set<Project> projects = getProjectsOrThrowOnNotFound(request.projectIds());
 
         Employee newEmployee = employeeMapper.toEmployee(request, jobTitle, projects);
         return employeeMapper.toResponse(employeeRepository.save(newEmployee));
@@ -105,7 +94,7 @@ public class EmployeeService {
         JobTitle jobTitle = titleRepository.findById(request.jobTitleId())
             .orElseThrow(() -> new ResourceNotFoundException("JobTitle", "id", request.jobTitleId()));
         
-        Set<Project> projects = getProjectsOrThrow(request.projectIds());
+        Set<Project> projects = getProjectsOrThrowOnNotFound(request.projectIds());
 
         employeeMapper.updateEmployee(request, employee, jobTitle, projects);
         return employeeMapper.toResponse(employeeRepository.save(employee));
@@ -124,13 +113,26 @@ public class EmployeeService {
         Employee employee = employeeRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
 
-        Set<Project> projects = getProjectsOrThrow(request.projectIds());
+        Set<Project> projects = getProjectsOrThrowOnNotFound(request.projectIds());
         
         employee.setProjects(projects);
         return employeeMapper.toResponse(employeeRepository.save(employee));
     }
 
-    private Set<Project> getProjectsOrThrow(Set<Long> projectIds) {
+    public List<HiresPerMonthResponse> getYearlyHiredCount(int year){
+        List<Object[]> hireData = employeeRepository.countEmployeesHiredPerMonth(year);
+
+        //Should probably create the whole and cleaner mapping function inside the employeeMapper class. 
+        //Will do if time permits
+        List<HiresPerMonthResponse> hireDataResponse = new ArrayList<>();
+        for (Object[] object :  hireData) {
+            hireDataResponse.add(employeeMapper.toHiresPerMonthData((Integer) object[0], (Long) object[1]));
+        }
+
+        return hireDataResponse;
+    }
+
+    private Set<Project> getProjectsOrThrowOnNotFound(Set<Long> projectIds) {
         List<Project> projectsList = projectRepository.findAllById(projectIds);
         if (projectsList.size() != projectIds.size()) {
             var foundIds = projectsList.stream().map(Project::getId).toList();

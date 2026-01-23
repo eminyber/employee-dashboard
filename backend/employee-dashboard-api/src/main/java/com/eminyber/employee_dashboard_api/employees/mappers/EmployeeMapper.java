@@ -12,6 +12,7 @@ import com.eminyber.employee_dashboard_api.common.models.PaginatedResponse;
 import com.eminyber.employee_dashboard_api.employees.models.CreateEmployeeRequest;
 import com.eminyber.employee_dashboard_api.employees.models.Employee;
 import com.eminyber.employee_dashboard_api.employees.models.EmployeeResponse;
+import com.eminyber.employee_dashboard_api.employees.models.HiresPerMonthResponse;
 import com.eminyber.employee_dashboard_api.employees.models.UpdateEmployeeRequest;
 import com.eminyber.employee_dashboard_api.jobtitles.mappers.JobTitleMapper;
 import com.eminyber.employee_dashboard_api.jobtitles.models.JobTitle;
@@ -40,4 +41,6 @@ public interface EmployeeMapper {
     @Mapping(target = "projects", source = "projects")
     void updateEmployee(UpdateEmployeeRequest request, @MappingTarget Employee employee, 
                             JobTitle jobTitle, Set<Project> projects);
+
+    HiresPerMonthResponse toHiresPerMonthData(Integer monthIndex, Long hireCount);
 }
