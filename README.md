@@ -118,6 +118,7 @@ These ports can be modified by updating the port mappings in the root-level `doc
 ## Future Plans
 
 - Add more **cohesive API documentation**.
+- Add **Caching on the client side**
 - Implement **authentication and authorization** (OAuth and JWT) using Spring Security.
 - Add **login and logout** functionality to the frontend.
 - Enable **employee management** directly from the frontend (create, edit, delete, etc.).
