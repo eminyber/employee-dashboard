@@ -1,3 +1,5 @@
+(**A typeScript version of the frontend can be found under the Ts-frontend branch**.)
+
 # employee-dashboard
 
 A simple full-stack application for displaying an employee dashboard, built with Spring Boot and Vue.
@@ -64,7 +66,7 @@ On Windows type:
 On Linux type:
 
 ```bash
-./mvnw clean install
+./mvnw clean package
 ```
 
 Lastly, after the jar file has been created. Go back to the root level of the project and build it with the docker compose file.
