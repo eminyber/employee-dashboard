@@ -46,7 +46,7 @@ services:
       - net
 
   app:
-    build: ./frontend/employee-dashboard
+    build: ./frontend/ts-employee-dashboard
     container_name: employee-dashboard-frontend
     restart: always
     depends_on:
